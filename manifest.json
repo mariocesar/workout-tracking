@@ -2,18 +2,18 @@
     "name": "Exercise Timer",
     "short_name": "Timer",
     "description": "A simple exercise timer",
-    "start_url": ".",
+    "start_url": "https://mariocesar.github.io/workout-tracking/",
     "display": "standalone",
     "background_color": "#000000",
     "theme_color": "#34C759",
     "icons": [
         {
-            "src": "/icons/icon.png",
+            "src": "https://mariocesar.github.io/workout-tracking/icons/icon.png",
             "sizes": "512x512",
             "type": "image/png"
         },
         {
-            "src": "/icons/icon-192x192.png",
+            "src": "https://mariocesar.github.io/workout-tracking/icons/icon-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
         }
