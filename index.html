@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise Timer</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: black;
+            color: white;
+        }
+        #exercise-container {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: center;
+        }
+        #exercise-title {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #timer {
+            font-size: 5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        #progress-bar-container {
+            width: 80%;
+            background-color: white;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        #progress-bar {
+            width: 0;
+            height: 100%;
+            background-color: gold;
+            transition: width 0.1s;
+        }
+        #start-button {
+            font-size: 2em;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #34C759;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="exercise-container">
+        <div id="exercise-title">Starting Exercise...</div>
+        <div id="timer">00:00</div>
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+        <button id="start-button" onclick="startExercise()">Start</button>
+    </div>
+
+    <script>
+        const exercises = [
+            // Calentamiento (10 minutos)
+            { name: 'Marcha en el lugar', duration: 60 * 2 },          // 2 minutos
+            { name: 'Rotaciones de hombros hacia adelante', duration: 60 }, // 1 minuto hacia adelante
+            { name: 'Rotaciones de hombros hacia atrás', duration: 60 },    // 1 minuto hacia atrás
+            { name: 'Rotaciones de cadera en una dirección', duration: 60 },// 1 minuto en una dirección
+            { name: 'Rotaciones de cadera en otra dirección', duration: 60 },// 1 minuto en otra dirección
+            { name: 'Rodillas al pecho', duration: 120 },           // 2 minutos
+            { name: 'Círculos con los brazos hacia adelante', duration: 60 },// 1 minuto hacia adelante
+            { name: 'Círculos con los brazos hacia atrás', duration: 60 },   // 1 minuto hacia atrás
+            { name: 'Estiramientos dinámicos', duration: 120 },     // 2 minutos
+
+            // Ejercicios de Fuerza y Funcionales (30-35 minutos)
+            { name: 'Sentadillas con Mancuernas', duration: 180 },  // 3 series de 12 repeticiones (~3 minutos)
+            { name: 'Peso Muerto con Mancuernas', duration: 180 },  // 3 series de 12 repeticiones (~3 minutos)
+            { name: 'Press de Hombros con Mancuernas', duration: 150 }, // 3 series de 10 repeticiones (~2.5 minutos)
+            { name: 'Remo con Mancuernas', duration: 180 },         // 3 series de 12 repeticiones (~3 minutos)
+            { name: 'Zancadas con Mancuernas', duration: 200 },     // 3 series de 10 repeticiones por pierna (~3.5 minutos)
+            { name: 'Puente de Glúteos con Mancuernas', duration: 225 }, // 3 series de 15 repeticiones (~3.75 minutos)
+            { name: 'Farmer\'s Walk', duration: 60 },               // Camina 30-60 segundos
+            { name: 'Step-Ups', duration: 180 },                    // 3 series de 10 repeticiones por pierna (~3 minutos)
+
+            // Ejercicios de Núcleo (10 minutos)
+            { name: 'Plancha', duration: 90 },                      // Mantén durante 20-30 segundos, repite 3 veces (~1.5 minutos)
+            { name: 'Crunches', duration: 180 },                    // 3 series de 12 repeticiones (~3 minutos)
+            { name: 'Russian Twists con Mancuerna', duration: 180 }, // 3 series de 16 repeticiones (~3 minutos)
+            { name: 'Superman', duration: 150 },                    // 3 series de 10 repeticiones (~2.5 minutos)
+
+            // Enfriamiento (5-10 minutos)
+            { name: 'Estiramientos Estáticos', duration: 300 },     // 5 minutos
+            { name: 'Respiración Profunda y Relajación', duration: 180 } // 3 minutos
+        ];
+
+        let currentExercise = 0;
+        let startTime, timerInterval;
+        let dingPlayed = false;
+        let audioContext;
+
+        const exerciseTitle = document.getElementById('exercise-title');
+        const timerElement = document.getElementById('timer');
+        const progressBar = document.getElementById('progress-bar');
+
+        function startExercise() {
+            dingPlayed = false;
+            document.getElementById('start-button').style.display = 'none';
+
+            if (currentExercise < exercises.length) {
+                exerciseTitle.textContent = exercises[currentExercise].name;
+                startTime = Date.now();
+                updateTimer();
+                timerInterval = setInterval(updateTimer, 100);
+            } else {
+                exerciseTitle.textContent = 'Workout Complete!';
+                timerElement.textContent = '';
+                progressBar.style.width = '100%';
+                document.body.style.backgroundColor = '#34C759'; // Verde de Apple
+            }
+        }
+
+        function updateTimer() {
+            const now = Date.now();
+            const elapsedTime = Math.floor((now - startTime) / 1000);
+            const duration = exercises[currentExercise].duration;
+            const remainingTime = duration - elapsedTime;
+
+            if (remainingTime <= 0) {
+                clearInterval(timerInterval);
+                currentExercise++;
+                dingPlayed = false;
+                startExercise();
+                return;
+            }
+
+            const minutes = Math.floor(remainingTime / 60).toString().padStart(2, '0');
+            const seconds = (remainingTime % 60).toString().padStart(2, '0');
+            timerElement.textContent = `${minutes}:${seconds}`;
+
+            const progress = elapsedTime / duration;
+            progressBar.style.width = `${progress * 100}%`;
+
+
+            // Play ding sound in the last 5 seconds
+            if (remainingTime <= 5 && !dingPlayed) {
+                dingPlayed = true;
+                let dingCount = 5;
+                const dingInterval = setInterval(() => {
+                    playDingSound();
+                    dingCount--;
+                    if (dingCount <= 0) {
+                        clearInterval(dingInterval);
+                    }
+                }, 1000);
+            }
+        }
+
+        function playDingSound() {
+            if (!audioContext) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // Frequency in hertz, 880 Hz is a common "tick" sound
+            gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1); // Short tick sound
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        window.onload = () => {
+            document.getElementById('start-button').onclick = () => {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                startExercise();
+            }
+        };
+    </script>
+</body>
+</html>
